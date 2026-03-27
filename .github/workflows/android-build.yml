@@ -1,16 +1,15 @@
-name: Build Android App
+name: Build APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Instalar Java
         uses: actions/setup-java@v3
@@ -18,14 +17,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Dar permisos a Gradle
-        run: chmod +x ./gradlew
+      - name: Permisos
+        run: chmod +x gradlew
 
-      - name: Compilar APK
+      - name: Build APK
         run: ./gradlew assembleRelease
-
-      - name: Subir APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release
-          path: app/build/outputs/apk/release/app-release.apk
