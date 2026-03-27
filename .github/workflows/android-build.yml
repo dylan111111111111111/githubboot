@@ -1,4 +1,4 @@
-name: Build APK + Flashable ZIP
+name: Build Flashable ZIP
 
 on:
   push:
@@ -9,32 +9,17 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # 1️⃣ Clonar tu repo
       - uses: actions/checkout@v3
 
-      - name: Instalar Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Permisos gradlew
-        run: chmod +x ./gradlew
-
-      - name: Build APK
-        run: ./gradlew assembleRelease
-
-      - name: Subir APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-release
-          path: app/build/outputs/apk/release/app-release.apk
-
+      # 2️⃣ Ejecutar tu script PowerShell que genera el ZIP
       - name: Build Flashable ZIP
         run: ./build_module.ps1
         shell: pwsh
 
+      # 3️⃣ Subir ZIP generado como artifact
       - name: Subir Flashable ZIP
         uses: actions/upload-artifact@v4
         with:
           name: flashable-zip
-          path: flashable/output.zip
+          path: flashable/output.zip   # Cambia esta ruta si tu PS1 genera el ZIP en otro lugar
