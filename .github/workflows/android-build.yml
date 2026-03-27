@@ -1,25 +1,40 @@
-name: Build Flashable ZIP
+name: Build APK from ZIP
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clonar tu repo
-      - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      # 2️⃣ Ejecutar tu script PowerShell que genera el ZIP
-      - name: Build Flashable ZIP
-        run: ./build_module.ps1
-        shell: pwsh
+    - name: Install unzip
+      run: sudo apt-get install unzip -y
 
-      # 3️⃣ Subir ZIP generado como artifact
-      - name: Subir Flashable ZIP
-        uses: actions/upload-artifact@v4
-        with:
-          name: flashable-zip
-          path: flashable/output.zip   # Cambia esta ruta si tu PS1 genera el ZIP en otro lugar
+    - name: Extract project.zip
+      run: unzip project.zip -d project
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Give permission to gradlew
+      run: chmod +x project/gradlew || true
+
+    - name: Build APK
+      run: |
+        cd project
+        ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: project/app/build/outputs/apk/debug/*.apk
