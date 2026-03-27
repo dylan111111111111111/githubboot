@@ -2,37 +2,38 @@ name: Build APK
 
 on:
   push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-    - name: Install unzip
-      run: sudo apt-get update && sudo apt-get install unzip -y
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-    - name: Extract project
-      run: unzip project.zip -d project
+      - name: Dar permisos a gradlew
+        run: chmod +x gradlew
+        working-directory: project/ABootpatch
 
-    # 🔥 GENERAR WRAPPER (porque no lo tienes)
-    - name: Generate gradle wrapper
-      run: |
-        cd project/ABootpatch
-        gradle wrapper --gradle-version 8.4
+      - name: Crear gradle.properties (AndroidX)
+        run: |
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+        working-directory: project/ABootpatch
 
-    - name: Make gradlew executable
-      run: chmod +x project/ABootpatch/gradlew
+      - name: Compilar APK
+        run: ./gradlew assembleDebug
+        working-directory: project/ABootpatch
 
-    - name: Build APK
-      run: |
-        cd project/ABootpatch
-        ./gradlew assembleDebug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: apk
-        path: project/ABootpatch/app/build/outputs/apk/debug/*.apk
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: project/ABootpatch/app/build/outputs/apk/debug/app-debug.apk
