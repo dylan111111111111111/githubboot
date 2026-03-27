@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ABootpatch</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_modules">Modules</string>
+    <string name="nav_superuser">SuperUser</string>
+    <string name="patch_boot">Patch Boot Image</string>
+    <string name="reboot">Reboot</string>
+    <string name="install_module">Install Module</string>
+</resources>

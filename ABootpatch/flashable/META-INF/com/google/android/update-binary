@@ -1,0 +1,66 @@
+#!/sbin/sh
+SKIPUNZIP=1
+OUTFD=$2
+ZIPFILE=$3
+TMPDIR=/dev/tmp/abootpatch
+ABDIR=/data/adb/abootpatch
+MODDIR=/data/adb/modules
+
+ui_print() { echo "ui_print $1" >> /proc/self/fd/$OUTFD; echo "ui_print" >> /proc/self/fd/$OUTFD; }
+abort() { ui_print "ERROR: $1"; exit 1; }
+
+ui_print "*************************************"
+ui_print "    ABootpatch (Beta) Installer      "
+ui_print "*************************************"
+
+API=$(getprop ro.build.version.sdk)
+[ "$API" -lt 23 ] && abort "Android 6.0+ required"
+ABI=$(getprop ro.product.cpu.abi)
+ui_print "- ABI: $ABI  API: $API"
+
+rm -rf "$TMPDIR"; mkdir -p "$TMPDIR" "$ABDIR" "$MODDIR" "$ABDIR/policy"
+
+ui_print "- Extracting..."
+unzip -o "$ZIPFILE" "data/adb/abootpatch/*" -d "$TMPDIR" 2>/dev/null
+cp -rf "$TMPDIR/data/adb/abootpatch/." "$ABDIR/"
+chmod 755 "$ABDIR/bootpatch" "$ABDIR/su" "$ABDIR/module_installer.sh" "$ABDIR/service.sh"
+chmod 700 "$ABDIR/abootpatchd" "$ABDIR/abootpatchinit"
+
+ui_print "- Finding boot partition..."
+SLOT=$(getprop ro.boot.slot_suffix)
+BOOT=""
+for p in "/dev/block/by-name/boot${SLOT}" "/dev/block/bootdevice/by-name/boot${SLOT}"; do
+    real=$(readlink -f "$p" 2>/dev/null)
+    [ -b "$real" ] && BOOT="$real" && break
+done
+[ -z "$BOOT" ] && BOOT=$(find /dev/block -name "boot*" 2>/dev/null | head -1)
+
+if [ -n "$BOOT" ]; then
+    ui_print "- Boot: $BOOT"
+    DUMP="$TMPDIR/boot.img"
+    OUT="$TMPDIR/boot_patched.img"
+    dd if="$BOOT" of="$DUMP" bs=4096 2>/dev/null || abort "Dump failed"
+    ui_print "- Boot image info:"
+    "$ABDIR/bootpatch" info "$DUMP"
+    ui_print "- Patching..."
+    "$ABDIR/bootpatch" patch "$DUMP" "$ABDIR/abootpatchinit" "$OUT" || abort "Patch failed"
+    dd if="$OUT" of="$BOOT" bs=4096 2>/dev/null || abort "Flash failed"
+    ui_print "- Boot patched and flashed!"
+else
+    ui_print "- Boot partition not found, patch manually in app"
+fi
+
+ui_print "- Installing su..."
+mount -o rw,remount /system 2>/dev/null || true
+mkdir -p /system/xbin
+cp "$ABDIR/su" /system/xbin/su
+chmod 6755 /system/xbin/su; chown 0:0 /system/xbin/su
+
+ui_print "- Starting daemon..."
+"$ABDIR/abootpatchd" &
+
+rm -rf "$TMPDIR"
+ui_print ""
+ui_print "  Done! Please reboot."
+ui_print "*************************************"
+exit 0

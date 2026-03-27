@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <androidx.cardview.widget.CardView android:id="@+id/card_status"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+            <TextView android:id="@+id/text_status"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="20dp" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold"/>
+        </androidx.cardview.widget.CardView>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_patch_boot"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" android:text="@string/patch_boot"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_reboot"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/reboot"/>
+    </LinearLayout>
+</ScrollView>

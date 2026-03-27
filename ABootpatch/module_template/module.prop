@@ -1,0 +1,6 @@
+id=my_module
+name=My ABootpatch Module
+version=v1.0
+versionCode=1
+author=YourName
+description=A sample ABootpatch module
