@@ -1,40 +1,29 @@
-name: Build APK from ZIP
+name: Build APK
 
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Install unzip
-      run: sudo apt-get install unzip -y
+    - name: Install unzip + gradle
+      run: sudo apt-get update && sudo apt-get install unzip gradle -y
 
-    - name: Extract project.zip
+    - name: Extract project
       run: unzip project.zip -d project
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Give permission to gradlew
-      run: chmod +x project/gradlew || true
 
     - name: Build APK
       run: |
-        cd project
-        ./gradlew assembleDebug
+        cd project/ABootpatch
+        gradle assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
-        path: project/app/build/outputs/apk/debug/*.apk
+        name: apk
+        path: project/ABootpatch/app/build/outputs/apk/debug/*.apk
