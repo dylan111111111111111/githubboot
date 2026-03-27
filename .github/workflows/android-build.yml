@@ -11,16 +11,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install unzip + gradle
-      run: sudo apt-get update && sudo apt-get install unzip gradle -y
+    - name: Install unzip
+      run: sudo apt-get update && sudo apt-get install unzip -y
 
     - name: Extract project
       run: unzip project.zip -d project
 
+    # 🔥 GENERAR WRAPPER (porque no lo tienes)
+    - name: Generate gradle wrapper
+      run: |
+        cd project/ABootpatch
+        gradle wrapper --gradle-version 8.4
+
+    - name: Make gradlew executable
+      run: chmod +x project/ABootpatch/gradlew
+
     - name: Build APK
       run: |
         cd project/ABootpatch
-        gradle assembleDebug
+        ./gradlew assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
