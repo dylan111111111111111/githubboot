@@ -18,13 +18,11 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Grant permission
-      run: chmod +x ./ABootpatch/gradlew
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
 
     - name: Build APK
-      run: |
-        cd ABootpatch
-        ./gradlew assembleDebug
+      run: gradle -p ABootpatch assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
