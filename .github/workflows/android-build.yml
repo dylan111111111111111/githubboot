@@ -16,7 +16,7 @@ jobs:
           java-version: '17'
 
       - name: Build Debug APK
-        run: gradle -p ABootpatch :app:assembleDebug
+        run: cd ABootpatch && ./gradlew :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
