@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK from ZIP
 
 on:
   push:
@@ -9,16 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Descargar repo
+        uses: actions/checkout@v3
 
-      - name: Instalar Java
-        uses: actions/setup-java@v3
+      - name: Instalar unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Descomprimir proyecto
+        run: unzip proyecto.zip -d proyecto
+
+      - name: Ver contenido (debug)
+        run: ls proyecto
+
+      - name: Dar permisos a gradlew
+        run: chmod +x proyecto/gradlew
+
+      - name: Compilar APK
+        run: cd proyecto && ./gradlew assembleRelease
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Permisos
-        run: chmod +x gradlew
-
-      - name: Build APK
-        run: ./gradlew assembleRelease
+          name: apk-release
+          path: proyecto/app/build/outputs/apk/release/app-release.apk
