@@ -1,0 +1,3 @@
+pluginManagement { repositories { gradlePluginPortal(); google(); mavenCentral() } }
+rootProject.name = "ABootpatch"
+include ':app'
