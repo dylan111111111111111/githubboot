@@ -8,23 +8,19 @@ jobs:
 build:
 runs-on: ubuntu-latest
 
-```
 steps:
-  - name: Checkout repo
-    uses: actions/checkout@v4
+  - uses: actions/checkout@v4
 
-  - name: Set up Java (JDK 17)
-    uses: actions/setup-java@v4
+  - uses: actions/setup-java@v4
     with:
       distribution: temurin
-      java-version: 17
+      java-version: '17'
 
   - name: Build APK
-    run: gradle -p ABootpatch :app:assembleDebug
+    run: "gradle -p ABootpatch :app:assembleDebug"
 
   - name: Upload APK
     uses: actions/upload-artifact@v4
     with:
       name: app-debug
       path: ABootpatch/app/build/outputs/apk/debug/*.apk
-```
