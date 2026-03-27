@@ -12,20 +12,29 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Configurar JDK 17
+      - name: Configurar Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+      - name: Configurar Android SDK + NDK
+        uses: android-actions/setup-android@v3
+
       - name: Dar permisos a gradlew
         run: chmod +x gradlew
         working-directory: project/ABootpatch
 
-      - name: Crear gradle.properties (AndroidX)
+      - name: Crear gradle.properties limpio
         run: |
-          echo "android.useAndroidX=true" >> gradle.properties
+          rm -f gradle.properties
+          echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
+        working-directory: project/ABootpatch
+
+      - name: Forzar Gradle 8.4
+        run: |
+          sed -i 's|gradle-.*-bin.zip|gradle-8.4-bin.zip|' gradle/wrapper/gradle-wrapper.properties
         working-directory: project/ABootpatch
 
       - name: Compilar APK
